@@ -17,53 +17,19 @@ const targetY = window.innerHeight * .8;
 
 function scrollHandler(e) {
   const { scrollY } = window;
-  up = scrollY < prevScrollY;
-  down = !up;
   const timelineRect = timeline.getBoundingClientRect();
-  const lineRect = line.getBoundingClientRect();
-
   const dist = targetY - timelineRect.top;
 
-  if (down && !full) {
-    set = Math.max(set, dist);
-    line.style.bottom = `calc(100% - ${set}px)`;
-  } else if (up) {
-    set = Math.min(set, dist);
-    line.style.bottom = `calc(100% - ${set}px)`;
-  }
-
-  if (dist > timeline.offsetHeight + 50 && !full) {
-    full = true;
-    line.style.bottom = `-50px`;
-  }
+  set = Math.max(0, Math.min(dist, timeline.offsetHeight));
+  line.style.bottom = `calc(100% - ${set}px)`;
 
   sections.forEach(item => {
     const rect = item.getBoundingClientRect();
-
-    if (rect.top + item.offsetHeight / 1.5 < targetY) {
-      item.classList.add('show-me');
-    } else {
-      item.classList.remove('show-me');
-    }
+    const show = rect.top + rect.height / 2 < targetY;
+    item.classList.toggle('show-me', show);
   });
-
-  prevScrollY = window.scrollY;
-
-  // Reset variables and line position when line reaches the starting position
-  if (timelineRect.top >= targetY) {
-    full = false;
-    set = 0;
-    line.style.bottom = `calc(100% - ${set}px)`;
-  } else if (timelineRect.bottom <= targetY && up) {
-    full = true;
-    set = timeline.offsetHeight;
-    line.style.bottom = `-50px`;
-  } else if (timelineRect.bottom < targetY && down && !full) {
-    full = false;
-    set = dist;
-    line.style.bottom = `calc(100% - ${set}px)`;
-  }
 }
+
 
 scrollHandler();
 line.style.display = 'block';
